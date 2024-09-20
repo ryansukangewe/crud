@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi CRUD dengan Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 500px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+  apiKey: "AIzaSyDKPZaAURqisN1_CJaA7uY5whS9FqfKFhU",
+  authDomain: "webcrud-59844.firebaseapp.com",
+  projectId: "webcrud-59844",
+  storageBucket: "webcrud-59844.appspot.com",
+  messagingSenderId: "365139551849",
+  appId: "1:365139551849:web:84ee9d5c391095ce89a4f8",
+  measurementId: "G-SN71R8EXBZ"
+};
+
+        // Inisialisasi Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Fungsi untuk menambah data
+        function addData() {
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            db.collection("messages").add({ name, message })
+                .then(() => {
+                    alert("Data berhasil ditambahkan!");
+                    document.getElementById('name').value = '';
+                    document.getElementById('message').value = '';
+                    loadData();
+                })
+                .catch(error => alert("Error: " + error));
+        }
+
+        // Fungsi untuk memuat data
+        function loadData() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            db.collection("messages").get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const row = `<tr>
+                        <td>${doc.data().name}</td>
+                        <td>${doc.data().message}</td>
+                        <td><button onclick="deleteData('${doc.id}')">Delete</button></td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            });
+        }
+
+        // Fungsi untuk menghapus data
+        function deleteData(id) {
+            db.collection("messages").doc(id).delete().then(() => {
+                alert("Data berhasil dihapus!");
+                loadData();
+            }).catch(error => alert("Error: " + error));
+        }
+
+        // Panggil loadData saat halaman dimuat
+        window.onload = loadData;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Aplikasi CRUD dengan Firebase</h1>
+        <input type="text" id="name" placeholder="Nama" required />
+        <input type="text" id="message" placeholder="Pesan" required />
+        <button onclick="addData()">Kirim</button>
+
+        <h2>Data Messages</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Pesan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</body>
+</html>
